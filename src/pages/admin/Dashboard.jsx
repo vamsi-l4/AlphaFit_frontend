@@ -6,27 +6,14 @@ import { formatCurrency } from '../../utils/helpers';
 import { Link } from 'react-router-dom';
 
 export default function Dashboard() {
-  const [stats, setStats] = useState({ total: 0, active: 0, expired: 0, revenue: 0 });
+  const [stats, setStats] = useState({ totalMembers: 0, activeMembers: 0, expiredMembers: 0, totalRevenue: 0, monthlyRevenue: 0, newMembersThisMonth: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboardStats = async () => {
       try {
-        // Fetch all members and payments at the same time
-        const [membersRes, paymentsRes] = await Promise.all([
-          api.get('/members'),
-          api.get('/payments')
-        ]);
-        
-        const members = membersRes.data.data || [];
-        const payments = paymentsRes.data.data || [];
-
-        // Calculate business statistics
-        const active = members.filter(m => m.status === 'ACTIVE').length;
-        const expired = members.filter(m => m.status === 'EXPIRED').length;
-        const revenue = payments.reduce((sum, payment) => sum + payment.amount, 0);
-
-        setStats({ total: members.length, active, expired, revenue });
+        const res = await api.get('/dashboard/stats');
+        setStats(res.data.data);
       } catch (err) {
         console.error('Failed to load admin dashboard stats:', err);
       } finally {
@@ -47,16 +34,22 @@ export default function Dashboard() {
       </div>
       <div className="grid">
         <Link to="/admin/payments" style={{ textDecoration: 'none' }}>
-          <StatCard label="Total Revenue" value={formatCurrency(stats.revenue)} color="var(--text-primary)" accent="var(--accent)" />
+          <StatCard label="Total Revenue" value={formatCurrency(stats.totalRevenue)} color="var(--text-primary)" accent="var(--accent)" />
+        </Link>
+        <Link to="/admin/payments" style={{ textDecoration: 'none' }}>
+          <StatCard label="This Month Income" value={formatCurrency(stats.monthlyRevenue)} color="var(--green)" accent="var(--green)" />
         </Link>
         <Link to="/admin/members" style={{ textDecoration: 'none' }}>
-          <StatCard label="Active Members" value={stats.active} color="var(--green)" accent="var(--green)" />
+          <StatCard label="Active Members" value={stats.activeMembers} color="var(--green)" accent="var(--green)" />
         </Link>
         <Link to="/admin/members" style={{ textDecoration: 'none' }}>
-          <StatCard label="Expired Members" value={stats.expired} color="var(--red)" accent="var(--red)" />
+          <StatCard label="New Members (This Month)" value={stats.newMembersThisMonth} color="var(--blue)" accent="var(--blue)" />
         </Link>
         <Link to="/admin/members" style={{ textDecoration: 'none' }}>
-          <StatCard label="Total Members" value={stats.total} color="var(--text-primary)" />
+          <StatCard label="Expired Members" value={stats.expiredMembers} color="var(--red)" accent="var(--red)" />
+        </Link>
+        <Link to="/admin/members" style={{ textDecoration: 'none' }}>
+          <StatCard label="Total Members" value={stats.totalMembers} color="var(--text-primary)" />
         </Link>
       </div>
     </AdminLayout>
