@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -15,6 +16,7 @@ import Home from './Home.jsx';
 import MemberLogin from './pages/member/MemberLogin';
 import MemberProfile from './pages/member/MemberProfile';
 import Workouts from './pages/member/Workouts.jsx';
+import alphaFitLogo from './assets/finalAlphafitIcon.png';
 
 const MemberLayoutWrapper = () => (
   <Layout bottomNav headerProps={{ logoutTo: '/member/login' }}>
@@ -23,6 +25,17 @@ const MemberLayoutWrapper = () => (
 );
 
 export default function App() {
+  useEffect(() => {
+    document.title = "Alpha Fit";
+    let link = document.querySelector("link[rel~='icon']");
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'icon';
+      document.head.appendChild(link);
+    }
+    link.href = alphaFitLogo;
+  }, []);
+
   return (
     <AuthProvider>
       <BrowserRouter>
