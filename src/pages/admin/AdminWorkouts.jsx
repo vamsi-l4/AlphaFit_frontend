@@ -146,13 +146,13 @@ export default function AdminWorkouts() {
 
     const content = (
         <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', gap: '16px', flexWrap: 'wrap' }}>
                 <div>
-                    <h1 className="page-title">{isAdmin ? 'Workout Management' : 'Workouts'}</h1>
-                    <div className="page-subtitle">{isAdmin ? 'Add and manage all gym exercises' : 'Browse gym exercises'}</div>
+                    <h1 className="page-title" style={{ fontSize: '20px', margin: '0 0 4px 0' }}>{isAdmin ? 'Workout Management' : 'Workouts'}</h1>
+                    <div className="page-subtitle" style={{ fontSize: '13px' }}>{isAdmin ? 'Add and manage all gym exercises' : 'Browse gym exercises'}</div>
                 </div>
                 {isAdmin && (
-                    <button className="btn-primary" onClick={() => handleOpenModal()}>+ Add Workout</button>
+                    <button className="btn-primary" onClick={() => handleOpenModal()} style={{ whiteSpace: 'nowrap' }}>+ Add Workout</button>
                 )}
             </div>
 

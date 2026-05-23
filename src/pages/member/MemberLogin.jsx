@@ -55,7 +55,7 @@ export default function MemberLogin() {
             <img className="admin-login-logo" src={alphaFitLogo} alt="Alpha Fit Logo" />
             <div className="admin-login-title">ALPHA FIT</div>
           </div>
-          <div className="admin-login-tagline">Member Portal</div>
+          <div className="admin-login-tagline">Train Like An Alpha</div>
         </div>
 
         <div className="card" style={{ border: '1px solid var(--border-light)' }}>
@@ -98,7 +98,7 @@ export default function MemberLogin() {
             <p style={{ margin: 0 }}>
               Admin?{' '}
               <Link to="/" style={{ color: 'var(--accent)', fontWeight: 500, textDecoration: 'none' }}>
-                Login
+                Login here
               </Link>
             </p>
           </div>
