@@ -1,7 +1,14 @@
 import axios from 'axios';
 
+let configBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+// Auto-fix: If the live Render URL was provided in Vercel but without '/api', append it automatically
+if (configBaseUrl && !configBaseUrl.endsWith('/api')) {
+  configBaseUrl = configBaseUrl.replace(/\/$/, '') + '/api';
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+  baseURL: configBaseUrl
 });
 
 api.interceptors.request.use((config) => {
