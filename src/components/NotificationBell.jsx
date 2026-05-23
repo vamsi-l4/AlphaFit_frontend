@@ -2,89 +2,66 @@ import { useEffect, useState } from 'react';
 import api from '../utils/api';
 
 export default function NotificationBell() {
-  const [open, setOpen] = useState(false);
-  const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(false);
+    const [notifications, setNotifications] = useState([]);
+    const [showNotifs, setShowNotifs] = useState(false);
 
-  const unreadCount = notifications.filter((notification) => !notification.is_read).length;
+    useEffect(() => {
+        api.get('/notifications')
+            .then(res => setNotifications(res.data.data || []))
+            .catch(err => console.error("Error loading notifications:", err));
+    }, []);
 
-  const loadNotifications = async () => {
-    setLoading(true);
-    try {
-      const response = await api.get('/notifications');
-      setNotifications(response.data.data || []);
-    } catch (error) {
-      console.error('Failed to load notifications', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const handleMarkAsRead = async (id, e) => {
+        if (e) e.stopPropagation();
+        
+        setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+        try {
+            await api.put(`/notifications/${id}/read`);
+        } catch (err) {
+            console.error("Error marking as read", err);
+            setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: false } : n));
+        }
+    };
 
-  const markRead = async (id) => {
-    try {
-      await api.patch(`/notifications/${id}/read`);
-      setNotifications((current) => current.map((notification) => (
-        notification.notification_id === id
-          ? { ...notification, is_read: true }
-          : notification
-      )));
-    } catch (error) {
-      console.error('Could not mark notification read', error);
-    }
-  };
+    const unreadCount = notifications.filter(n => !n.isRead).length;
 
-  useEffect(() => {
-    loadNotifications();
-  }, []);
-
-  return (
-    <div className="notification-wrapper">
-      <button className="notification-button" type="button" onClick={() => setOpen((prev) => !prev)}>
-        🔔
-        {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
-      </button>
-
-      {open && (
-        <div className="notification-panel">
-          <div className="notification-panel-header">
-            <span>Notifications</span>
-            <button type="button" className="btn-ghost btn-sm" onClick={loadNotifications}>
-              Refresh
-            </button>
-          </div>
-
-          {loading && <div className="text-muted">Loading notifications…</div>}
-          {!loading && notifications.length === 0 && (
-            <div className="notification-empty">No notifications available</div>
-          )}
-
-          {!loading && notifications.map((notification) => (
-            <div
-              key={notification.notification_id}
-              className={`notification-item ${notification.is_read ? '' : 'notification-item-unread'}`}
+    return (
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', marginRight: '16px' }}>
+            <button 
+                className="btn-ghost" 
+                style={{ fontSize: '20px', padding: '6px', position: 'relative', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                onClick={() => setShowNotifs(!showNotifs)}
             >
-              <div>
-                <div className="notification-item-title">{notification.title}</div>
-                <div className="notification-item-message">{notification.message}</div>
-                <div className="notification-item-meta">
-                  {new Date(notification.created_at).toLocaleString('en-IN', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
+                🔔
+                {unreadCount > 0 && (
+                    <span style={{
+                        position: 'absolute', top: '2px', right: '4px', width: '10px', height: '10px',
+                        backgroundColor: 'var(--red)', borderRadius: '50%', border: '2px solid var(--bg-primary)'
+                    }} />
+                )}
+            </button>
+
+            {showNotifs && (
+                <div style={{ position: 'absolute', top: '44px', right: '-10px', width: '320px', background: 'var(--bg-primary)', zIndex: 9999, borderRadius: '12px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)', border: '1px solid var(--border-light)', overflow: 'hidden' }}>
+                    <div style={{ padding: '16px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-secondary)' }}>
+                        <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold' }}>Notifications</h3>
+                        <button onClick={() => setShowNotifs(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '14px', color: 'var(--text-muted)' }}>✕</button>
+                    </div>
+                    <div style={{ maxHeight: '350px', overflowY: 'auto', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {notifications.length === 0 ? (
+                            <p className="text-muted text-sm text-center" style={{ margin: '20px 0' }}>No new notifications</p>
+                        ) : (
+                            notifications.map(n => (
+                                <div key={n.id} style={{ padding: '12px', borderRadius: '8px', background: n.isRead ? 'transparent' : 'var(--bg-secondary)', border: n.isRead ? '1px solid var(--border-light)' : '1px solid var(--accent)' }}>
+                                    <div style={{ fontWeight: 600, fontSize: '14px', marginBottom: '4px', color: 'var(--text-primary)' }}>{n.title}</div>
+                                    <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.4' }}>{n.message}</div>
+                                    {!n.isRead && <button onClick={(e) => handleMarkAsRead(n.id, e)} className="btn-primary" style={{ marginTop: '10px', padding: '6px 12px', fontSize: '12px', width: '100%', borderRadius: '6px' }}>Mark as Read</button>}
+                                </div>
+                            ))
+                        )}
+                    </div>
                 </div>
-              </div>
-              {!notification.is_read && (
-                <button className="btn-secondary btn-sm" type="button" onClick={() => markRead(notification.notification_id)}>
-                  Mark read
-                </button>
-              )}
-            </div>
-          ))}
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 }

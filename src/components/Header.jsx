@@ -18,7 +18,7 @@ export default function Header({ logoutTo = '/', mobileOnly = false }) {
         <img className="header-logo" src={alphaFitLogo} alt="Alpha Fit Logo" style={{ height: '40px', width: 'auto', marginLeft: '-25px' }} />
         {user && (
           <div className="header-user">
-            {user.role === 'admin' && <NotificationBell />}
+            <NotificationBell />
             <span className="text-muted">{user.name}</span>
             <button className="btn-ghost btn-sm" onClick={handleLogout}>Logout</button>
           </div>
