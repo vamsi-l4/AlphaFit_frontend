@@ -42,23 +42,35 @@ export default function NotificationBell() {
             </button>
 
             {showNotifs && (
-                <div style={{ position: 'absolute', top: '44px', right: '-10px', width: '320px', background: 'var(--bg-primary)', zIndex: 9999, borderRadius: '12px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)', border: '1px solid var(--border-light)', overflow: 'hidden' }}>
-                    <div style={{ padding: '16px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-secondary)' }}>
-                        <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold' }}>Notifications</h3>
-                        <button onClick={() => setShowNotifs(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '14px', color: 'var(--text-muted)' }}>✕</button>
-                    </div>
-                    <div style={{ maxHeight: '350px', overflowY: 'auto', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {notifications.length === 0 ? (
-                            <p className="text-muted text-sm text-center" style={{ margin: '20px 0' }}>No new notifications</p>
-                        ) : (
-                            notifications.map(n => (
-                                <div key={n.id} style={{ padding: '12px', borderRadius: '8px', background: n.isRead ? 'transparent' : 'var(--bg-secondary)', border: n.isRead ? '1px solid var(--border-light)' : '1px solid var(--accent)' }}>
-                                    <div style={{ fontWeight: 600, fontSize: '14px', marginBottom: '4px', color: 'var(--text-primary)' }}>{n.title}</div>
-                                    <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.4' }}>{n.message}</div>
-                                    {!n.isRead && <button onClick={(e) => handleMarkAsRead(n.id, e)} className="btn-primary" style={{ marginTop: '10px', padding: '6px 12px', fontSize: '12px', width: '100%', borderRadius: '6px' }}>Mark as Read</button>}
-                                </div>
-                            ))
-                        )}
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000, backdropFilter: 'blur(4px)' }}>
+                    <div className="card" style={{ width: '90%', maxWidth: '360px', maxHeight: '70vh', overflowY: 'auto', padding: '20px', position: 'relative', borderRadius: '16px', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}>
+                        <button onClick={() => setShowNotifs(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'var(--bg-secondary)', border: 'none', width: '30px', height: '30px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-primary)' }}>✕</button>
+                        <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', textAlign: 'center', fontWeight: 'bold' }}>Notifications</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {notifications.length === 0 ? (
+                                <p className="text-muted text-sm text-center" style={{ margin: '20px 0' }}>No new notifications</p>
+                            ) : (
+                                notifications.map(n => (
+                                    <div key={n.id} style={{
+                                        padding: '16px', borderRadius: '12px',
+                                        background: n.isRead ? 'var(--bg-primary)' : 'var(--bg-secondary)',
+                                        border: n.isRead ? '1px solid var(--border-light)' : '1px solid var(--accent)'
+                                    }}>
+                                        <div style={{ fontWeight: 600, fontSize: '15px', marginBottom: '6px', color: 'var(--text-primary)' }}>{n.title}</div>
+                                        <div style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.4' }}>{n.message}</div>
+                                        {!n.isRead && (
+                                            <button
+                                                onClick={(e) => handleMarkAsRead(n.id, e)}
+                                                className="btn-primary"
+                                                style={{ marginTop: '12px', padding: '6px 12px', fontSize: '12px', width: '100%', borderRadius: '6px' }}
+                                            >
+                                                Mark as Read
+                                            </button>
+                                        )}
+                                    </div>
+                                ))
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
