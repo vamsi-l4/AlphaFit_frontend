@@ -14,10 +14,7 @@ import AdminWorkouts from './pages/admin/AdminWorkouts.jsx';
 import Home from './Home.jsx';
 import MemberLogin from './pages/member/MemberLogin';
 import MemberProfile from './pages/member/MemberProfile';
-import Workouts from './pages/member/Workouts';
-import Muscles from './pages/member/Muscles';
-import SubMuscles from './pages/member/SubMuscles';
-import Exercises from './pages/member/Exercises';
+import Workouts from './pages/member/Workouts.jsx';
 
 const MemberLayoutWrapper = () => (
   <Layout bottomNav headerProps={{ logoutTo: '/member/login' }}>
@@ -54,9 +51,6 @@ export default function App() {
             
             {/* Workouts Flow */}
             <Route path="/workouts" element={<Workouts />} />
-            <Route path="/workouts/muscles/:categoryId" element={<Muscles />} />
-            <Route path="/workouts/submuscles/:muscleId" element={<SubMuscles />} />
-            <Route path="/workouts/exercises/:subMuscleId" element={<Exercises />} />
           </Route>
 
           {/* Fallback */}

@@ -1,217 +1,254 @@
 import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/api';
 
 export default function AdminWorkouts() {
+    const { user } = useAuth();
+    const isAdmin = user?.role === 'admin';
+
+    const [workouts, setWorkouts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     
-    // UI State for drill-down
-    const [selectedCategory, setSelectedCategory] = useState(null);
-    const [muscles, setMuscles] = useState([]);
-    
-    const [selectedMuscle, setSelectedMuscle] = useState(null);
-    const [subMuscles, setSubMuscles] = useState([]);
-    
-    const [selectedSubMuscle, setSelectedSubMuscle] = useState(null);
-    const [exercises, setExercises] = useState([]);
+    // Modal state
+    const [showModal, setShowModal] = useState(false);
+    const [editingWorkout, setEditingWorkout] = useState(null);
+    const [form, setForm] = useState({
+        categoryId: '',
+        newCategory: '',
+        name: '',
+        equipment: '',
+        steps: '',
+        videoUrl: ''
+    });
 
-    useEffect(() => {
-        fetchCategories();
-    }, []);
-
-    const fetchCategories = async () => {
+    const fetchWorkouts = async () => {
+        setLoading(true);
         try {
-            const res = await api.get('/workout/categories');
-            setCategories(res.data.data || []);
+            const catRes = await api.get('/workout/categories');
+            const cats = catRes.data.data || [];
+            setCategories(cats);
+
+            let all = [];
+            // Fetch deeply to construct the flat list safely over existing API
+            for (const cat of cats) {
+                const mRes = await api.get(`/workout/muscles/${cat.id}`);
+                const muscles = mRes.data.data || [];
+                for (const m of muscles) {
+                    const smRes = await api.get(`/workout/submuscles/${m.id}`);
+                    const subMuscles = smRes.data.data || [];
+                    for (const sm of subMuscles) {
+                        const exRes = await api.get(`/workout/exercises/${sm.id}`);
+                        const exercises = exRes.data.data || [];
+                        exercises.forEach(ex => {
+                            all.push({
+                                ...ex,
+                                categoryId: cat.id,
+                                categoryName: cat.name,
+                                muscleId: m.id,
+                                subMuscleId: sm.id
+                            });
+                        });
+                    }
+                }
+            }
+            setWorkouts(all);
         } catch (err) {
-            console.error(err);
+            console.error('Failed to fetch workouts:', err);
         } finally {
             setLoading(false);
         }
     };
 
-    const fetchMuscles = async (categoryId) => {
-        try {
-            const res = await api.get(`/workout/muscles/${categoryId}`);
-            setMuscles(res.data.data || []);
-        } catch (err) { console.error(err); }
-    };
+    useEffect(() => {
+        fetchWorkouts();
+    }, []);
 
-    const fetchSubMuscles = async (muscleId) => {
-        try {
-            const res = await api.get(`/workout/submuscles/${muscleId}`);
-            setSubMuscles(res.data.data || []);
-        } catch (err) { console.error(err); }
-    };
-
-    const fetchExercises = async (subMuscleId) => {
-        try {
-            const res = await api.get(`/workout/exercises/${subMuscleId}`);
-            setExercises(res.data.data || []);
-        } catch (err) { console.error(err); }
-    };
-
-    const handleAddCategory = async () => {
-        const name = prompt('Enter new Category name (e.g., Strength):');
-        if (!name) return;
-        try {
-            await api.post('/workout/categories', { name });
-            fetchCategories();
-        } catch (err) { alert(err.response?.data?.message || 'Error adding category'); }
-    };
-
-    const handleAddMuscle = async () => {
-        const name = prompt('Enter new Muscle Group (e.g., Chest):');
-        if (!name) return;
-        try {
-            await api.post('/workout/muscles', { name, categoryId: selectedCategory.id });
-            fetchMuscles(selectedCategory.id);
-        } catch (err) { alert(err.response?.data?.message || 'Error adding muscle'); }
-    };
-
-    const handleAddSubMuscle = async () => {
-        const name = prompt('Enter new Sub-Muscle (e.g., Upper Chest):');
-        if (!name) return;
-        try {
-            await api.post('/workout/submuscles', { name, muscleId: selectedMuscle.id });
-            fetchSubMuscles(selectedMuscle.id);
-        } catch (err) { alert(err.response?.data?.message || 'Error adding sub-muscle'); }
-    };
-
-    const handleAddExercise = async () => {
-        const name = prompt('Exercise Name:');
-        if (!name) return;
-        const equipment = prompt('Equipment Required:');
-        const steps = prompt('Steps/Instructions:');
-        const videoUrl = prompt('Video URL (YouTube or Direct Link):');
-        
-        try {
-            await api.post('/workout/exercises', {
-                name, equipment, steps, videoUrl, subMuscleId: selectedSubMuscle.id
+    const handleOpenModal = (workout = null) => {
+        if (workout) {
+            setEditingWorkout(workout);
+            setForm({
+                categoryId: workout.categoryId.toString(),
+                newCategory: '',
+                name: workout.name,
+                equipment: workout.equipment || '',
+                steps: workout.steps || '',
+                videoUrl: workout.videoUrl || ''
             });
-            fetchExercises(selectedSubMuscle.id);
-        } catch (err) { alert(err.response?.data?.message || 'Error adding exercise'); }
+        } else {
+            setEditingWorkout(null);
+            setForm({ categoryId: '', newCategory: '', name: '', equipment: '', steps: '', videoUrl: '' });
+        }
+        setShowModal(true);
     };
 
-    const handleDelete = async (type, id, refreshFn, parentId) => {
-        if (!window.confirm(`Are you sure you want to delete this?`)) return;
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         try {
-            await api.delete(`/workout/${type}/${id}`);
-            refreshFn(parentId);
-            
-            if (type === 'categories' && selectedCategory?.id === id) setSelectedCategory(null);
-            if (type === 'muscles' && selectedMuscle?.id === id) setSelectedMuscle(null);
-            if (type === 'submuscles' && selectedSubMuscle?.id === id) setSelectedSubMuscle(null);
-        } catch (err) { alert(err.response?.data?.message || `Error deleting`); }
+            let catId = form.categoryId;
+            // 1. Resolve Category
+            if (!catId && form.newCategory) {
+                const cRes = await api.post('/workout/categories', { name: form.newCategory });
+                catId = cRes.data.data.id;
+            }
+            if (!catId) return alert('Please select or enter a category');
+
+            // 2. Resolve "General" Muscle under category
+            const mRes = await api.get(`/workout/muscles/${catId}`);
+            let muscle = (mRes.data.data || []).find(m => m.name === 'General');
+            if (!muscle) {
+                const cmRes = await api.post('/workout/muscles', { name: 'General', categoryId: parseInt(catId) });
+                muscle = cmRes.data.data;
+            }
+
+            // 3. Resolve "General" SubMuscle under muscle
+            const smRes = await api.get(`/workout/submuscles/${muscle.id}`);
+            let subMuscle = (smRes.data.data || []).find(sm => sm.name === 'General');
+            if (!subMuscle) {
+                const csmRes = await api.post('/workout/submuscles', { name: 'General', muscleId: muscle.id });
+                subMuscle = csmRes.data.data;
+            }
+
+            // 4. Save Exercise
+            const payload = {
+                name: form.name,
+                equipment: form.equipment,
+                steps: form.steps,
+                videoUrl: form.videoUrl,
+                subMuscleId: subMuscle.id
+            };
+
+            if (editingWorkout) {
+                // Delete old and create new to simulate an update across potentially new categories!
+                await api.delete(`/workout/exercises/${editingWorkout.id}`).catch(() => {});
+                await api.post('/workout/exercises', payload);
+            } else {
+                await api.post('/workout/exercises', payload);
+            }
+
+            setShowModal(false);
+            fetchWorkouts();
+        } catch (err) {
+            alert(err.response?.data?.message || 'Error saving workout');
+        }
     };
 
-    return (
-        <AdminLayout>
-            <div style={{ marginBottom: '24px' }}>
-                <h1 className="page-title">Workout Management</h1>
-                <div className="page-subtitle">Configure Categories, Muscles, and Exercises</div>
+    const handleDelete = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this workout?')) return;
+        try {
+            await api.delete(`/workout/exercises/${id}`);
+            fetchWorkouts();
+        } catch (err) {
+            alert('Error deleting workout');
+        }
+    };
+
+    const content = (
+        <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <div>
+                    <h1 className="page-title">{isAdmin ? 'Workout Management' : 'Workouts'}</h1>
+                    <div className="page-subtitle">{isAdmin ? 'Add and manage all gym exercises' : 'Browse gym exercises'}</div>
+                </div>
+                {isAdmin && (
+                    <button className="btn-primary" onClick={() => handleOpenModal()}>+ Add Workout</button>
+                )}
             </div>
 
-            <div style={{ display: 'flex', gap: '20px', flexDirection: window.innerWidth < 768 ? 'column' : 'row' }}>
-                <div className="card" style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                        <h3 style={{ margin: 0, fontSize: '16px' }}>Categories</h3>
-                        <button className="btn-primary" style={{ padding: '4px 8px', fontSize: '12px' }} onClick={handleAddCategory}>+ Add</button>
-                    </div>
-                    {loading ? <p>Loading...</p> : categories.map(cat => (
-                        <div key={cat.id} style={{
-                            padding: '12px', border: '1px solid var(--border-light)', borderRadius: '8px', marginBottom: '8px',
-                            background: selectedCategory?.id === cat.id ? 'var(--bg-secondary)' : 'transparent',
-                            cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-                        }} onClick={() => { setSelectedCategory(cat); setSelectedMuscle(null); setSelectedSubMuscle(null); fetchMuscles(cat.id); }}>
-                            <span style={{ fontWeight: selectedCategory?.id === cat.id ? 'bold' : 'normal', fontSize: '14px' }}>{cat.name}</span>
-                            <button className="btn-ghost text-red" style={{ padding: '2px 6px', fontSize: '12px' }} onClick={(e) => { e.stopPropagation(); handleDelete('categories', cat.id, fetchCategories); }}>Del</button>
+            {loading ? (
+                <div className="card py-10 text-center text-muted">
+                    <div className="loading">Loading workouts...</div>
+                </div>
+            ) : workouts.length === 0 ? (
+                <div className="card text-center text-muted py-10">No workouts found.</div>
+            ) : (
+                <div className="grid">
+                    {workouts.map(w => (
+                        <div key={w.id} className="card">
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                                <span className="badge" style={{ background: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}>{w.categoryName}</span>
+                                {isAdmin && (
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        <button className="btn-ghost" style={{ padding: '4px 8px', fontSize: '12px' }} onClick={() => handleOpenModal(w)}>Edit</button>
+                                        <button className="btn-ghost text-red" style={{ padding: '4px 8px', fontSize: '12px' }} onClick={() => handleDelete(w.id)}>Delete</button>
+                                    </div>
+                                )}
+                            </div>
+                            <h3 style={{ margin: '0 0 8px 0', fontSize: '18px' }}>{w.name}</h3>
+                            <div className="text-muted text-sm" style={{ marginBottom: '12px' }}><strong>Equipment:</strong> {w.equipment || 'None'}</div>
+                            {w.steps && (
+                                <div className="text-sm" style={{ marginBottom: '16px', color: 'var(--text-secondary)' }}>
+                                    <strong>Steps:</strong> {w.steps}
+                                </div>
+                            )}
+                            {w.videoUrl && (
+                                <a href={w.videoUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none', fontSize: '14px', fontWeight: 500 }}>
+                                    ▶ Watch Video
+                                </a>
+                            )}
                         </div>
                     ))}
-                    {categories.length === 0 && !loading && <p className="text-muted" style={{ fontSize: '13px' }}>No categories found.</p>}
                 </div>
+            )}
 
-                {selectedCategory && (
-                    <div className="card" style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                            <h3 style={{ margin: 0, fontSize: '16px' }}>Muscles</h3>
-                            <button className="btn-primary" style={{ padding: '4px 8px', fontSize: '12px' }} onClick={handleAddMuscle}>+ Add</button>
-                        </div>
-                        {muscles.map(musc => (
-                            <div key={musc.id} style={{
-                                padding: '12px', border: '1px solid var(--border-light)', borderRadius: '8px', marginBottom: '8px',
-                                background: selectedMuscle?.id === musc.id ? 'var(--bg-secondary)' : 'transparent',
-                                cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-                            }} onClick={() => { setSelectedMuscle(musc); setSelectedSubMuscle(null); fetchSubMuscles(musc.id); }}>
-                                <span style={{ fontWeight: selectedMuscle?.id === musc.id ? 'bold' : 'normal', fontSize: '14px' }}>{musc.name}</span>
-                                <button className="btn-ghost text-red" style={{ padding: '2px 6px', fontSize: '12px' }} onClick={(e) => { e.stopPropagation(); handleDelete('muscles', musc.id, fetchMuscles, selectedCategory.id); }}>Del</button>
+            {showModal && isAdmin && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+                    <div className="card" style={{ width: '100%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
+                        <h2 style={{ marginTop: 0, marginBottom: '20px' }}>{editingWorkout ? 'Edit Workout' : 'Add Workout'}</h2>
+                        <form onSubmit={handleSubmit}>
+                            <div className="form-group">
+                                <label className="form-label">Category</label>
+                                <select 
+                                    className="form-input" 
+                                    value={form.categoryId} 
+                                    onChange={e => setForm({...form, categoryId: e.target.value, newCategory: ''})}
+                                >
+                                    <option value="">-- Select Existing Category --</option>
+                                    {categories.map(c => (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
+                                </select>
                             </div>
-                        ))}
-                        {muscles.length === 0 && <p className="text-muted" style={{ fontSize: '13px' }}>No muscles found.</p>}
-                    </div>
-                )}
-
-                {selectedMuscle && (
-                    <div className="card" style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                            <h3 style={{ margin: 0, fontSize: '16px' }}>Sub-Muscles</h3>
-                            <button className="btn-primary" style={{ padding: '4px 8px', fontSize: '12px' }} onClick={handleAddSubMuscle}>+ Add</button>
-                        </div>
-                        {subMuscles.map(sub => (
-                            <div key={sub.id} style={{
-                                padding: '12px', border: '1px solid var(--border-light)', borderRadius: '8px', marginBottom: '8px',
-                                background: selectedSubMuscle?.id === sub.id ? 'var(--bg-secondary)' : 'transparent',
-                                cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-                            }} onClick={() => { setSelectedSubMuscle(sub); fetchExercises(sub.id); }}>
-                                <span style={{ fontWeight: selectedSubMuscle?.id === sub.id ? 'bold' : 'normal', fontSize: '14px' }}>{sub.name}</span>
-                                <button className="btn-ghost text-red" style={{ padding: '2px 6px', fontSize: '12px' }} onClick={(e) => { e.stopPropagation(); handleDelete('submuscles', sub.id, fetchSubMuscles, selectedMuscle.id); }}>Del</button>
+                            {!form.categoryId && (
+                                <div className="form-group">
+                                    <label className="form-label">Or Create New Category</label>
+                                    <input type="text" className="form-input" placeholder="e.g., Strength, Cardio" value={form.newCategory} onChange={e => setForm({...form, newCategory: e.target.value})} />
+                                </div>
+                            )}
+                            
+                            <div className="form-group">
+                                <label className="form-label">Exercise Name</label>
+                                <input type="text" className="form-input" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required />
                             </div>
-                        ))}
-                        {subMuscles.length === 0 && <p className="text-muted" style={{ fontSize: '13px' }}>No sub-muscles found.</p>}
-                    </div>
-                )}
-            </div>
 
-            {selectedSubMuscle && (
-                <div className="card" style={{ marginTop: '20px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                        <h3 style={{ margin: 0, fontSize: '16px' }}>Exercises for {selectedSubMuscle.name}</h3>
-                        <button className="btn-primary" style={{ padding: '6px 12px', fontSize: '13px' }} onClick={handleAddExercise}>+ Add Exercise</button>
-                    </div>
-                    
-                    <div className="table-wrap">
-                        <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
-                            <thead>
-                                <tr style={{ borderBottom: '1px solid var(--border-light)' }}>
-                                    <th style={{ padding: '12px 8px', color: 'var(--text-muted)' }}>Name</th>
-                                    <th style={{ padding: '12px 8px', color: 'var(--text-muted)' }}>Equipment</th>
-                                    <th style={{ padding: '12px 8px', color: 'var(--text-muted)' }}>Video</th>
-                                    <th style={{ padding: '12px 8px', color: 'var(--text-muted)' }}>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {exercises.length === 0 ? (
-                                    <tr><td colSpan="4" className="text-center text-muted" style={{ padding: '20px' }}>No exercises added yet.</td></tr>
-                                ) : (
-                                    exercises.map(ex => (
-                                        <tr key={ex.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
-                                            <td style={{ padding: '12px 8px', fontWeight: 500 }}>{ex.name}</td>
-                                            <td style={{ padding: '12px 8px' }} className="text-muted">{ex.equipment || '-'}</td>
-                                            <td style={{ padding: '12px 8px' }}>
-                                                {ex.videoUrl ? <a href={ex.videoUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none' }}>View Link</a> : '-'}
-                                            </td>
-                                            <td style={{ padding: '12px 8px' }}>
-                                                <button className="btn-ghost text-red" style={{ padding: '4px 8px', fontSize: '12px' }} onClick={() => handleDelete('exercises', ex.id, fetchExercises, selectedSubMuscle.id)}>Delete</button>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+                            <div className="form-group">
+                                <label className="form-label">Equipment</label>
+                                <input type="text" className="form-input" value={form.equipment} onChange={e => setForm({...form, equipment: e.target.value})} />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Steps/Instructions</label>
+                                <textarea className="form-input" rows="3" value={form.steps} onChange={e => setForm({...form, steps: e.target.value})}></textarea>
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Video URL</label>
+                                <input type="url" className="form-input" placeholder="https://youtube.com/..." value={form.videoUrl} onChange={e => setForm({...form, videoUrl: e.target.value})} />
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '10px', marginTop: '24px' }}>
+                                <button type="submit" className="btn-primary" style={{ flex: 1 }}>{editingWorkout ? 'Update' : 'Save'}</button>
+                                <button type="button" className="btn-secondary" style={{ flex: 1 }} onClick={() => setShowModal(false)}>Cancel</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}
-        </AdminLayout>
+        </div>
     );
+
+    // If the user is an admin, wrap with the AdminLayout navigation sidebar.
+    // If the user is a member, return the naked content (App.jsx already handles Member Layout!).
+    return isAdmin ? <AdminLayout>{content}</AdminLayout> : content;
 }
