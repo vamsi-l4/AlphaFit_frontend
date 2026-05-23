@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Member {
+  id           Int          @id @default(autoincrement())
+  name         String
+  phone        String       @unique
+  password     String
+  joinDate     DateTime     @default(now())
+  planDuration Int
+  expiryDate   DateTime
+  status       String       @default("active")
+  photo        String?
+  favorites    Favorite[]
+  logs         WorkoutLog[]
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String   // Cardio / Strength
+  createdAt DateTime @default(now())
+  muscles   Muscle[]
+}
+
+model Muscle {
+  id         Int         @id @default(autoincrement())
+  name       String
+  categoryId Int
+  category   Category    @relation(fields: [categoryId], references: [id])
+  subMuscles SubMuscle[]
+}
+
+model SubMuscle {
+  id        Int        @id @default(autoincrement())
+  name      String
+  muscleId  Int
+  muscle    Muscle     @relation(fields: [muscleId], references: [id])
+  exercises Exercise[]
+}
+
+model Exercise {
+  id           Int          @id @default(autoincrement())
+  name         String
+  equipment    String
+  steps        String
+  videoUrl     String
+  subMuscleId  Int
+  subMuscle    SubMuscle    @relation(fields: [subMuscleId], references: [id])
+  favorites    Favorite[]
+  workoutLogs  WorkoutLog[]
+}
+
+model Favorite {
+  id         Int      @id @default(autoincrement())
+  memberId   Int
+  exerciseId Int
+  member     Member   @relation(fields: [memberId], references: [id])
+  exercise   Exercise @relation(fields: [exerciseId], references: [id])
+
+  @@unique([memberId, exerciseId])
+}
+
+model WorkoutLog {
+  id         Int      @id @default(autoincrement())
+  memberId   Int
+  exerciseId Int
+  date       DateTime @default(now())
+  member     Member   @relation(fields: [memberId], references: [id])
+  exercise   Exercise @relation(fields: [exerciseId], references: [id])
+}

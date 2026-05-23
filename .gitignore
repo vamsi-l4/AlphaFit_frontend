@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Vite build output
+/dist/
+
+# Production build
+/build/
+
+# Local env files
+.env
+.env.*
+
+# Logs
+*.log
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Cache
+.vite/
+
