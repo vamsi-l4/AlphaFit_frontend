@@ -96,13 +96,6 @@ export default function MemberLogin() {
 
           <div style={{ marginTop: 24, textAlign: 'center', fontSize: '13px', color: 'var(--text-muted)' }}>
             <p style={{ margin: 0 }}>
-              Don't have an account?{' '}
-              <Link to="/member/signup" style={{ color: 'var(--accent)', fontWeight: 500, textDecoration: 'none' }}>
-                Sign up
-              </Link>
-            </p>
-            <div style={{ margin: '12px 0', fontSize: '12px' }}>or</div>
-            <p style={{ margin: 0 }}>
               Admin?{' '}
               <Link to="/" style={{ color: 'var(--accent)', fontWeight: 500, textDecoration: 'none' }}>
                 Login
