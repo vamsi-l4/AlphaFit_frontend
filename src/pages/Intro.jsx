@@ -78,22 +78,16 @@ export default function Intro() {
                 .intro-video {
                     width: 100%;
                     height: 100%;
-                    object-fit: cover;
-                }
-
-                @media (min-width: 768px) {
-                    .intro-video {
-                        object-fit: contain;
-                    }
+                    object-fit: contain;
                 }
 
                 .glass-button {
                     position: absolute;
-                    bottom: 5%;
+                    bottom: 12%;
                     left: 50%;
                     transform: translateX(-50%);
-                    padding: 8px 24px;
-                    font-size: 12px;
+                    padding: 12px 32px;
+                    font-size: 14px;
                     font-weight: 500;
                     color: white;
                     background: rgba(255, 255, 255, 0.05);
@@ -108,6 +102,7 @@ export default function Intro() {
                     z-index: 10;
                     letter-spacing: 1px;
                     text-transform: uppercase;
+                    white-space: nowrap;
                 }
 
                 .glass-button:hover {
