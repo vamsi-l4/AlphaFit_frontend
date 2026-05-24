@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import introVideo from '../assets/alpha-intro.mp4';
+import introVideo from '../../public/alpha-intro.mp4';
 
 export default function Intro() {
     const [showButton, setShowButton] = useState(false);
@@ -9,6 +9,7 @@ export default function Intro() {
     const navigate = useNavigate();
     const location = useLocation();
     const { user } = useAuth();
+    const videoRef = useRef(null);
 
     // Check if the user is explicitly opening the root page "/"
     const isRoot = location.pathname === '/';
@@ -24,6 +25,17 @@ export default function Intro() {
             navigate('/member/login', { replace: true }); 
         }
     };
+
+    useEffect(() => {
+        // Force the video to play to bypass modern browser autoplay restrictions
+        if (isRoot && !videoDismissed && videoRef.current) {
+            videoRef.current.play().catch((err) => {
+                console.warn("Autoplay was blocked by the browser:", err);
+                // If blocked, immediately show the button so the user doesn't get stuck on a black screen!
+                setShowButton(true);
+            });
+        }
+    }, [isRoot, videoDismissed]);
 
     const handleVideoEnd = () => {
         setShowButton(true);
@@ -43,11 +55,13 @@ export default function Intro() {
     return (
         <div style={{ position: 'fixed', inset: 0, width: '100vw', height: '100vh', backgroundColor: '#000', overflow: 'hidden', zIndex: 9999 }}>
             <video
+                ref={videoRef}
                 src={introVideo}
                 autoPlay
                 muted
                 playsInline
                 onEnded={handleVideoEnd}
+                onError={handleVideoEnd}
                 className="intro-video"
             />
 
