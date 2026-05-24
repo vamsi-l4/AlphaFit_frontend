@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import introVideo from '../../public/alpha-intro.mp4';
+import introVideo from '../../public/Alpha-intro.mp4';
 
 export default function Intro() {
     const [showButton, setShowButton] = useState(false);
