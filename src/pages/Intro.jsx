@@ -53,7 +53,7 @@ export default function Intro() {
     }
 
     return (
-        <div style={{ position: 'fixed', inset: 0, width: '100vw', height: '100vh', backgroundColor: '#000', overflow: 'hidden', zIndex: 9999 }}>
+        <div className="intro-container">
             <video
                 ref={videoRef}
                 src={introVideo}
@@ -66,29 +66,62 @@ export default function Intro() {
             />
 
             {showButton && (
-                <button 
-                    className="glass-button"
-                    onClick={handleGetStarted}
-                >
-                    Get Started
-                </button>
+                <div className="overlay-wrapper">
+                    <div className="button-container">
+                        <button 
+                            className="glass-button"
+                            onClick={handleGetStarted}
+                        >
+                            Get Started
+                        </button>
+                    </div>
+                </div>
             )}
 
             <style>{`
+                .intro-container {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100vw;
+                    height: 100dvh;
+                    background-color: #000;
+                    overflow: hidden;
+                    z-index: 9999;
+                }
+
                 .intro-video {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
                     width: 100%;
                     height: 100%;
-                    object-fit: contain;
+                    object-fit: cover;
+                    object-position: center center;
+                }
+
+                .overlay-wrapper {
+                    position: absolute;
+                    inset: 0;
+                    pointer-events: none;
+                    z-index: 10;
+                }
+
+                .button-container {
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 100%;
+                    display: flex;
+                    justify-content: center;
+                    padding-bottom: max(6dvh, 40px);
+                    pointer-events: auto;
                 }
 
                 .glass-button {
-                    position: absolute;
-                    bottom: 12%;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    padding: 12px 32px;
-                    font-size: 14px;
-                    font-weight: 500;
+                    padding: 14px 40px;
+                    font-size: 15px;
+                    font-weight: 600;
                     color: white;
                     background: rgba(255, 255, 255, 0.05);
                     backdrop-filter: blur(8px);
@@ -99,14 +132,14 @@ export default function Intro() {
                     opacity: 0;
                     animation: ghost-fade 2.5s ease-in-out forwards, border-pulse 1.5s ease-in-out infinite alternate;
                     transition: transform 0.2s, background 0.2s;
-                    z-index: 10;
-                    letter-spacing: 1px;
+                    letter-spacing: 1.5px;
                     text-transform: uppercase;
                     white-space: nowrap;
+                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
                 }
 
                 .glass-button:hover {
-                    transform: translateX(-50%) scale(1.05);
+                    transform: scale(1.05);
                     background: rgba(255, 255, 255, 0.2);
                 }
 
