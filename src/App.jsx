@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 
+import Intro from './pages/Intro';
 // Admin pages
 import AdminLogin from './pages/admin/AdminLogin';
 import Dashboard from './pages/admin/Dashboard';
@@ -41,7 +42,8 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           {/* Public */}
-          <Route path="/" element={<AdminLogin />} />
+          <Route path="/" element={<Intro />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/member/login" element={<MemberLogin />} />
           {/* Admin Protected */}
           <Route path="/admin/dashboard" element={
