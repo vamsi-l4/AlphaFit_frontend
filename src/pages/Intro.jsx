@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import introVideo from '../../public/Alpha-intro.mp4';
 
 export default function Intro() {
     const [showButton, setShowButton] = useState(false);
@@ -10,6 +9,7 @@ export default function Intro() {
     const location = useLocation();
     const { user } = useAuth();
     const videoRef = useRef(null);
+    const audioRef = useRef(null);
 
     // Check if the user is explicitly opening the root page "/"
     const isRoot = location.pathname === '/';
@@ -34,8 +34,35 @@ export default function Intro() {
                 // If blocked, immediately show the button so the user doesn't get stuck on a black screen!
                 setShowButton(true);
             });
+
+            // Attempt to play the synchronized audio exactly when the video starts
+            if (audioRef.current) {
+                audioRef.current.play().catch((err) => {
+                    console.warn("Audio autoplay was blocked by the browser:", err);
+                });
+            }
         }
     }, [isRoot, videoDismissed]);
+
+    // Unlock audio instantly when the user touches or clicks ANYWHERE on the screen
+    useEffect(() => {
+        const unlockAudio = () => {
+            if (audioRef.current && audioRef.current.paused) {
+                // Sync the audio to exactly where the video is right now!
+                if (videoRef.current) {
+                    audioRef.current.currentTime = videoRef.current.currentTime;
+                }
+                audioRef.current.play().catch(() => {});
+            }
+        };
+        
+        document.addEventListener('click', unlockAudio);
+        document.addEventListener('touchstart', unlockAudio);
+        return () => {
+            document.removeEventListener('click', unlockAudio);
+            document.removeEventListener('touchstart', unlockAudio);
+        };
+    }, []);
 
     const handleVideoEnd = () => {
         setShowButton(true);
@@ -56,7 +83,7 @@ export default function Intro() {
         <div className="intro-container">
             <video
                 ref={videoRef}
-                src={introVideo}
+                src="/Alpha-intro.mp4"
                 autoPlay
                 muted
                 playsInline
@@ -64,6 +91,8 @@ export default function Intro() {
                 onError={handleVideoEnd}
                 className="intro-video"
             />
+            
+            <audio ref={audioRef} src="/alpha-intro-audio.mp3" preload="auto" />
 
             {showButton && (
                 <div className="overlay-wrapper">
@@ -98,6 +127,12 @@ export default function Intro() {
                     height: 100%;
                     object-fit: cover;
                     object-position: center center;
+                }
+
+                @media (min-width: 768px) {
+                    .intro-video {
+                        object-fit: contain;
+                    }
                 }
 
                 .overlay-wrapper {

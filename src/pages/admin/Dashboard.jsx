@@ -7,13 +7,18 @@ import { Link } from 'react-router-dom';
 
 export default function Dashboard() {
   const [stats, setStats] = useState({ totalMembers: 0, activeMembers: 0, expiredMembers: 0, totalRevenue: 0, monthlyRevenue: 0, newMembersThisMonth: 0 });
+  const [totalWorkouts, setTotalWorkouts] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboardStats = async () => {
       try {
-        const res = await api.get('/dashboard/stats');
+        const [res, workoutRes] = await Promise.all([
+          api.get('/dashboard/stats'),
+          api.get('/workout/v2/all')
+        ]);
         setStats(res.data.data);
+        setTotalWorkouts(workoutRes.data.data ? workoutRes.data.data.length : 0);
       } catch (err) {
         console.error('Failed to load admin dashboard stats:', err);
       } finally {
@@ -50,6 +55,9 @@ export default function Dashboard() {
         </Link>
         <Link to="/admin/members" style={{ textDecoration: 'none' }}>
           <StatCard label="Total Members" value={stats.totalMembers} color="var(--text-primary)" />
+        </Link>
+        <Link to="/admin/workouts?manage=true" style={{ textDecoration: 'none' }}>
+          <StatCard label="Total Workouts" value={totalWorkouts} color="var(--accent)" accent="var(--accent)" />
         </Link>
       </div>
     </AdminLayout>
