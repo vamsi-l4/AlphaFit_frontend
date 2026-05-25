@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/api';
 import { formatDate, formatCurrency } from '../../utils/helpers';
 import ExpiryNoticeModal from '../../components/ExpiryNoticeModal';
-import { ArrowOutRightSquareHalfIcon } from '../../components/Icons';
+import { ArrowOutRightSquareHalfIcon, UserIcon } from '../../components/Icons';
 
 function InfoRow({ label, value, tone }) {
   return (
@@ -75,16 +75,16 @@ export default function MemberProfile() {
         )}
 
         <div className="card member-profile-card">
-          <div className="member-profile-head">
-            <div>
+          <div className="member-profile-head" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', flexShrink: 0 }}>
+              <UserIcon width={32} height={32} />
+            </div>
+            <div style={{ flex: 1 }}>
               <div className="member-profile-name">{profile?.name}</div>
               <div className="member-profile-phone">{profile?.phone}</div>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+            <div>
               <span className={`badge badge-${profile?.status?.toLowerCase()}`}>{profile?.status}</span>
-              <button className="btn-danger btn-sm" onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <ArrowOutRightSquareHalfIcon width={16} height={16} /> Logout
-              </button>
             </div>
           </div>
 
@@ -130,6 +130,12 @@ export default function MemberProfile() {
               </table>
             </div>
           )}
+        </div>
+
+        <div style={{ marginTop: '24px', paddingBottom: '20px' }}>
+          <button className="btn-danger" onClick={handleLogout} style={{ width: '100%', padding: '14px', borderRadius: '12px', fontSize: '16px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+            <ArrowOutRightSquareHalfIcon width={20} height={20} /> Logout
+          </button>
         </div>
       </div>
     </>
