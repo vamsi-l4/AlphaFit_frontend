@@ -103,7 +103,10 @@ export default function Workouts() {
             {loading ? (
                 <div className="loading-state" style={{color: '#aaa', textAlign: 'center', marginTop: '40px'}}>Loading cinematic workouts...</div>
             ) : filteredWorkouts.length === 0 ? (
-                <div className="empty-state" style={{color: '#aaa', textAlign: 'center', marginTop: '40px'}}>No workouts found.</div>
+                <div className="empty-state" style={{color: '#aaa', textAlign: 'center', marginTop: '40px', padding: '40px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px dashed rgba(255,255,255,0.1)'}}>
+                    <h3 style={{ color: '#fff', margin: '0 0 8px 0' }}>No workouts found</h3>
+                    <p style={{ margin: 0 }}>Try adjusting your search or category filter.</p>
+                </div>
             ) : (
                 <div className="cinematic-grid">
                     {filteredWorkouts.map(w => (

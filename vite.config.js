@@ -1,9 +1,37 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import fs from 'fs'
+import path from 'path'
+
+// Custom Plugin: Automatically generates PWA icons from your existing logo!
+function autoGeneratePWAIcons() {
+  return {
+    name: 'auto-generate-pwa-icons',
+    buildStart() {
+      const publicDir = path.resolve(process.cwd(), 'public');
+      const dest192 = path.resolve(process.cwd(), 'public/pwa-192x192.png');
+      const dest512 = path.resolve(process.cwd(), 'public/pwa-512x512.png');
+      
+      // Find your logo (checks both possible names you've used)
+      let srcIcon = path.resolve(process.cwd(), 'src/assets/finalAlphafitIcon.png');
+      if (!fs.existsSync(srcIcon)) {
+        srcIcon = path.resolve(process.cwd(), 'src/assets/AlphaFitFULLLOGO-removebg.png');
+      }
+
+      // Magically copy and configure the files for the manifest
+      if (fs.existsSync(srcIcon)) {
+        if (!fs.existsSync(publicDir)) fs.mkdirSync(publicDir);
+        fs.copyFileSync(srcIcon, dest192);
+        fs.copyFileSync(srcIcon, dest512);
+      }
+    }
+  }
+}
 
 export default defineConfig({
   plugins: [
+    autoGeneratePWAIcons(),
     react(),
     VitePWA({
       registerType: 'autoUpdate',
