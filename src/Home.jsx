@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from './utils/api';
 import { Link } from 'react-router-dom';
+import { DumbbellIcon, WalletAltIcon } from './components/Icons';
 
 export default function Home() {
     const [data, setData] = useState(null);
@@ -58,9 +59,19 @@ export default function Home() {
                 <div className="stat-label uppercase text-muted text-xs tracking-wide font-bold mb-2" style={{ marginBottom: '12px' }}>
                     Quick Actions
                 </div>
-                <div style={{ display: 'flex', gap: '12px', flexDirection: 'column' }}>
-                    <Link to="/workouts" className="btn-primary" style={{ textDecoration: 'none', textAlign: 'center', padding: '14px', borderRadius: '8px' }}>💪 Start a Workout</Link>
-                    <Link to="/member/profile" className="btn-secondary" style={{ textDecoration: 'none', textAlign: 'center', padding: '14px', borderRadius: '8px' }}>💳 View Payment History</Link>
+                <div style={{ display: 'grid', gap: '16px', gridTemplateColumns: '1fr' }}>
+                    <Link to="/workouts" className="quick-action-btn">
+                        <div className="quick-action-icon-wrapper">
+                            <DumbbellIcon width={24} height={24} />
+                        </div>
+                        Start a Workout
+                    </Link>
+                    <Link to="/member/profile" className="quick-action-btn">
+                        <div className="quick-action-icon-wrapper">
+                            <WalletAltIcon width={24} height={24} />
+                        </div>
+                        View Payment History
+                    </Link>
                 </div>
             </div>
         </div>

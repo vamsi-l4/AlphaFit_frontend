@@ -79,11 +79,11 @@ export default function MemberProfile() {
             <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', flexShrink: 0 }}>
               <UserIcon width={32} height={32} />
             </div>
-            <div style={{ flex: 1 }}>
-              <div className="member-profile-name">{profile?.name}</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="member-profile-name" style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}>{profile?.name}</div>
               <div className="member-profile-phone">{profile?.phone}</div>
             </div>
-            <div>
+            <div style={{ flexShrink: 0 }}>
               <span className={`badge badge-${profile?.status?.toLowerCase()}`}>{profile?.status}</span>
             </div>
           </div>
@@ -119,7 +119,7 @@ export default function MemberProfile() {
                       <td className="text-muted">{i + 1}</td>
                       <td>{formatDate(p.paymentDate)}</td>
                       <td className="payment-history-amount">{formatCurrency(p.amount)}</td>
-                      <td>
+                      <td style={{ whiteSpace: 'nowrap' }}>
                         <span className={`badge payment-method-${p.method.toLowerCase()}`}>
                           {p.method}
                         </span>
