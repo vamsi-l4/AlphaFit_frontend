@@ -4,9 +4,9 @@ import { useAuth } from '../context/AuthContext';
 
 export default function Intro() {
     const [showButton, setShowButton] = useState(false);
-    const [videoDismissed, setVideoDismissed] = useState(() => {
-        return sessionStorage.getItem('alpha_intro_seen') === 'true';
-    });
+    const [videoDismissed, setVideoDismissed] = useState(false);
+    const [videoSrc, setVideoSrc] = useState("/alpha-intro.mp4");
+    const [audioSrc, setAudioSrc] = useState("/alpha-intro-audio.mp3");
     const navigate = useNavigate();
     const location = useLocation();
     const { user } = useAuth();
@@ -79,8 +79,22 @@ export default function Intro() {
         setShowButton(true);
     };
 
+    const handleVideoError = () => {
+        // Automatically try the uppercase version if the lowercase one fails!
+        if (videoSrc === "/alpha-intro.mp4") {
+            setVideoSrc("/Alpha-intro.mp4");
+        } else {
+            setShowButton(true);
+        }
+    };
+
+    const handleAudioError = () => {
+        if (audioSrc === "/alpha-intro-audio.mp3") {
+            setAudioSrc("/Alpha-intro-audio.mp3");
+        }
+    };
+
     const handleGetStarted = () => {
-        sessionStorage.setItem('alpha_intro_seen', 'true');
         setVideoDismissed(true);
         routeUser();
     };
@@ -100,12 +114,12 @@ export default function Intro() {
                 playsInline
                 preload="auto"
                 onEnded={handleVideoEnd}
-                onError={handleVideoEnd}
+                onError={handleVideoError}
                 className="intro-video"
-                src="/Alpha-intro.mp4"
+                src={videoSrc}
             />
             
-            <audio ref={audioRef} src="/alpha-intro-audio.mp3" preload="auto" />
+            <audio ref={audioRef} src={audioSrc} preload="auto" onError={handleAudioError} />
 
             {showButton && (
                 <div className="overlay-wrapper">

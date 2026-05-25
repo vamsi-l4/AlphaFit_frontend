@@ -37,6 +37,10 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/.*\.(mp4|mp3)$/i], // Prevents Service Worker from breaking media files
         runtimeCaching: [
           {
+            urlPattern: /.*\.(?:mp4|mp3)$/i,
+            handler: 'NetworkOnly' // Completely bypasses the Service Worker cache to prevent black screens!
+          },
+          {
             urlPattern: /^https:\/\/.*\/api\/.*/i, // Caches your live backend API requests
             handler: 'NetworkFirst', // Tries the live database first, falls back to offline cache if no internet
             options: {
