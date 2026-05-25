@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg', 'Alpha-intro.mp4', 'alpha-intro-audio.mp3'],
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
         name: 'Alpha Fit Gym',
         short_name: 'Alpha Fit',
@@ -32,9 +32,9 @@ export default defineConfig({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,mp4,mp3}'],
-        maximumFileSizeToCacheInBytes: 15000000, // 15MB limit to comfortably cache your cinematic intro media offline
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         navigateFallback: '/index.html', // Fixes 404 routing refresh issues on installed PWAs
+        navigateFallbackDenylist: [/^\/.*\.(mp4|mp3)$/i], // Prevents Service Worker from breaking media files
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\/api\/.*/i, // Caches your live backend API requests

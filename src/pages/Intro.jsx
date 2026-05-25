@@ -28,6 +28,15 @@ export default function Intro() {
         }
     };
 
+    // GUARANTEED FALLBACK: Always show the "Get Started" button after 3.5 seconds.
+    // This fixes the bug where PWA mobile browsers fail to fire the video 'onEnded' event!
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setShowButton(true);
+        }, 3500);
+        return () => clearTimeout(timer);
+    }, []);
+
     useEffect(() => {
         // Force the video to play to bypass modern browser autoplay restrictions
         if (isRoot && !videoDismissed && videoRef.current) {
@@ -86,15 +95,14 @@ export default function Intro() {
         <div className="intro-container">
             <video
                 ref={videoRef}
-                src="/Alpha-intro.mp4"
                 autoPlay
                 muted
                 playsInline
                 preload="auto"
-                style={{ backgroundColor: '#000' }}
                 onEnded={handleVideoEnd}
                 onError={handleVideoEnd}
                 className="intro-video"
+                src="/Alpha-intro.mp4"
             />
             
             <audio ref={audioRef} src="/alpha-intro-audio.mp3" preload="auto" />
@@ -132,11 +140,13 @@ export default function Intro() {
                     height: 100%;
                     object-fit: cover;
                     object-position: center center;
+                    background-color: #000;
                 }
 
                 @media (min-width: 768px) {
                     .intro-video {
                         object-fit: contain;
+                        background-color: #000;
                     }
                 }
 
