@@ -43,12 +43,12 @@ export default function Home() {
                     <div className="stat-accent" style={{ background: data.daysLeft < 5 ? 'var(--red)' : 'var(--green)' }} />
                 </div>
 
-                <div className="card">
-                    <div className="form-label">Expiry Date</div>
-                    <div className="text-primary" style={{ fontSize: '18px', fontWeight: 600 }}>
+                <div className="card stat-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <div className="stat-label">Expiry Date</div>
+                    <div className="stat-value" style={{ fontSize: 'clamp(18px, 5vw, 24px)' }}>
                         {new Date(data.expiryDate).toLocaleDateString('en-GB', {
                             day: 'numeric',
-                            month: 'long',
+                            month: 'short',
                             year: 'numeric'
                         })}
                     </div>

@@ -566,8 +566,8 @@ tr:hover {
 /* Grid - Mobile first */
 .grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
 @media (min-width: 640px) {
@@ -1324,16 +1324,27 @@ td.name-cell {
 }
 
 .stat-label {
-  font-size: 11px;
+  font-size: 10px;
+  line-height: 1.3;
+  color: var(--text-secondary);
+  text-transform: uppercase;
 }
 
 .stat-value {
-  font-size: 36px;
+  font-size: 24px;
   line-height: 1;
+  margin: 6px 0 4px 0;
+  font-weight: 700;
 }
 
 .stat-sub {
-  font-size: 12px;
+  font-size: 11px;
+}
+
+@media (min-width: 768px) {
+  .stat-label { font-size: 12px; }
+  .stat-value { font-size: 34px; margin: 8px 0; }
+  .stat-sub { font-size: 13px; }
 }
 
 /* Payment Card */
@@ -1502,12 +1513,20 @@ td.name-cell {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  -webkit-tap-highlight-color: transparent;
 }
 .quick-action-btn:hover {
   transform: translateY(-4px);
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.15);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+}
+.quick-action-btn:active {
+  transform: scale(0.96);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition-duration: 0.1s;
 }
 .quick-action-icon-wrapper {
   display: flex;
@@ -1524,6 +1543,12 @@ td.name-cell {
   background: var(--accent);
   color: #000;
   transform: scale(1.1);
+}
+.quick-action-btn:active .quick-action-icon-wrapper {
+  background: var(--accent);
+  color: #000;
+  transform: scale(0.95);
+  transition-duration: 0.1s;
 }
 
 /* Member Profile */
