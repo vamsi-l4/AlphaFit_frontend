@@ -87,7 +87,6 @@ export default function Intro() {
             <video
                 ref={videoRef}
                 src="/Alpha-intro.mp4"
-                poster="/pwa-512x512.png"
                 autoPlay
                 muted
                 playsInline
