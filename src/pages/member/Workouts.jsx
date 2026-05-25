@@ -235,9 +235,9 @@ export default function Workouts() {
                     box-shadow: 0 20px 50px rgba(0,0,0,0.5);
                 }
                 .modal-close {
-                    position: absolute; top: 15px; right: 15px; background: rgba(0, 0, 0, 0.5);
-                    border: none; color: white; width: 32px; height: 32px; border-radius: 50%;
-                    cursor: pointer; z-index: 10; backdrop-filter: blur(4px);
+                    position: absolute; top: 15px; right: 15px; background: transparent;
+                    border: none; color: white; font-size: 22px;
+                    cursor: pointer; z-index: 10; padding: 4px;
                 }
                 .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
                 .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-top-left-radius: 20px; border-top-right-radius: 20px; }

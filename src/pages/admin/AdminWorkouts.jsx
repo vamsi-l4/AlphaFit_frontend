@@ -348,7 +348,7 @@ export default function AdminWorkouts() {
                 .form-modal h2 { margin-top: 0; margin-bottom: 24px; }
                 
                 .glass-modal { background: #111; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-                .modal-close { position: absolute; top: 15px; right: 15px; background: rgba(0, 0, 0, 0.5); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; z-index: 10; backdrop-filter: blur(4px); }
+                .modal-close { position: absolute; top: 15px; right: 15px; background: transparent; border: none; color: white; font-size: 22px; cursor: pointer; z-index: 10; padding: 4px; }
                 .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
                 .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-top-left-radius: 20px; border-top-right-radius: 20px; }
                 .modal-thumbnail { width: 100%; height: 250px; object-fit: cover; border-top-left-radius: 20px; border-top-right-radius: 20px; }

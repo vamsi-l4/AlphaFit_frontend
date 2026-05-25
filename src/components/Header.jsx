@@ -16,7 +16,7 @@ export default function Header({ mobileOnly = false, logoutTo = '/' }) {
   return (
     <header className={`header ${mobileOnly ? 'mobile-only' : ''}`}>
       <div className="container">
-        <img className="header-logo" src={alphaFitLogo} alt="Alpha Fit Logo" style={{ height: '40px', width: 'auto', marginLeft: '-25px' }} />
+        <img className="header-logo" src={alphaFitLogo} alt="Alpha Fit Logo" style={{ height: '32px', width: 'auto' }} />
         {user && (
           <div className="header-user" style={{ display: 'flex', alignItems: 'center' }}>
             <NotificationBell />
