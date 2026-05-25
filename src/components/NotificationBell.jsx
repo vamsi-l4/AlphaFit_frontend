@@ -45,7 +45,7 @@ export default function NotificationBell() {
             {showNotifs && (
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000, backdropFilter: 'blur(4px)' }}>
                     <div className="card" style={{ width: '90%', maxWidth: '360px', maxHeight: '70vh', overflowY: 'auto', padding: '20px', position: 'relative', borderRadius: '16px', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}>
-                        <button onClick={() => setShowNotifs(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'var(--bg-secondary)', border: 'none', width: '30px', height: '30px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-primary)' }}>✕</button>
+                        <button onClick={() => setShowNotifs(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', fontSize: '20px', padding: '4px', cursor: 'pointer', color: 'var(--text-primary)' }}>✕</button>
                         <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', textAlign: 'center', fontWeight: 'bold' }}>Notifications</h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             {notifications.length === 0 ? (

@@ -28,22 +28,11 @@ export default function Intro() {
         }
     };
 
-    // GUARANTEED FALLBACK: Always show the "Get Started" button after 3.5 seconds.
-    // This fixes the bug where PWA mobile browsers fail to fire the video 'onEnded' event!
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setShowButton(true);
-        }, 3500);
-        return () => clearTimeout(timer);
-    }, []);
-
     useEffect(() => {
         // Force the video to play to bypass modern browser autoplay restrictions
         if (isRoot && !videoDismissed && videoRef.current) {
             videoRef.current.play().catch((err) => {
                 console.warn("Autoplay was blocked by the browser:", err);
-                // If blocked, immediately show the button so the user doesn't get stuck on a black screen!
-                setShowButton(true);
             });
 
             // Attempt to play the synchronized audio exactly when the video starts
@@ -58,6 +47,10 @@ export default function Intro() {
     // Unlock audio instantly when the user touches or clicks ANYWHERE on the screen
     useEffect(() => {
         const unlockAudio = () => {
+            // If the video actually got blocked, tapping the screen will rescue it
+            if (videoRef.current && videoRef.current.paused) {
+                videoRef.current.play().catch(() => setShowButton(true));
+            }
             if (audioRef.current && audioRef.current.paused) {
                 // Sync the audio to exactly where the video is right now!
                 if (videoRef.current) {
