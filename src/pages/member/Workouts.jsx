@@ -55,11 +55,8 @@ export default function Workouts() {
             normalizedUrl = normalizedUrl.startsWith('/') ? `/media${normalizedUrl}` : `/media/${normalizedUrl}`;
         }
         
-        // Guarantee a valid backend connection even during Vite dev proxy
-        let backendUrl = api.defaults.baseURL || 'http://localhost:5000/api';
-        if (backendUrl.startsWith('/')) {
-            backendUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : window.location.origin + backendUrl;
-        }
+        // Strictly fetch the exact live backend URL to guarantee Vercel connects perfectly
+        const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
         
         const baseUrl = backendUrl.replace(/\/api\/?$/, '');
         const cleanUrl = normalizedUrl.startsWith('/') ? normalizedUrl : `/${normalizedUrl}`;
