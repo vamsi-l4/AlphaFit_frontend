@@ -4,7 +4,9 @@ import { useAuth } from '../context/AuthContext';
 
 export default function Intro() {
     const [showButton, setShowButton] = useState(false);
-    const [videoDismissed, setVideoDismissed] = useState(false);
+    const [videoDismissed, setVideoDismissed] = useState(() => {
+        return sessionStorage.getItem('alpha_intro_seen') === 'true';
+    });
     const navigate = useNavigate();
     const location = useLocation();
     const { user } = useAuth();
@@ -69,6 +71,7 @@ export default function Intro() {
     };
 
     const handleGetStarted = () => {
+        sessionStorage.setItem('alpha_intro_seen', 'true');
         setVideoDismissed(true);
         routeUser();
     };
@@ -84,9 +87,12 @@ export default function Intro() {
             <video
                 ref={videoRef}
                 src="/Alpha-intro.mp4"
+                poster="/pwa-512x512.png"
                 autoPlay
                 muted
                 playsInline
+                preload="auto"
+                style={{ backgroundColor: '#000' }}
                 onEnded={handleVideoEnd}
                 onError={handleVideoEnd}
                 className="intro-video"

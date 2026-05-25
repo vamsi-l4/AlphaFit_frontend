@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">Alpha Fit</string>
-    <string name="title_activity_main">Alpha Fit</string>
-    <string name="package_name">com.alphafit.app</string>
-    <string name="custom_url_scheme">com.alphafit.app</string>
-</resources>

@@ -17,11 +17,23 @@ export default function Home() {
     if (loading) return <div className="loading">LOADING...</div>;
     if (!data) return <div className="layout-content"><div className="alert alert-danger">Failed to load dashboard. Please try logging in again.</div></div>;
 
+    const getImageUrl = (url) => {
+        if (!url) return null;
+        if (url.startsWith('http') || url.startsWith('data:')) return url;
+        let normalizedUrl = url.replace(/\\/g, '/');
+        let backendUrl = (api.defaults && api.defaults.baseURL) || import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+        if (backendUrl.endsWith('/')) {
+            backendUrl = backendUrl.slice(0, -1);
+        }
+        const cleanUrl = normalizedUrl.startsWith('/') ? normalizedUrl : `/${normalizedUrl}`;
+        return `${backendUrl}${encodeURI(cleanUrl)}`;
+    };
+
     return (
         <div className="layout-content">
             <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    {data.photo && <img src={data.photo} className="avatar-lg" alt="Profile" />}
+                    {data.photo && <img src={getImageUrl(data.photo)} className="avatar-lg" alt="Profile" style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }} />}
                     <div>
                         <h1 className="page-title">Member Dashboard</h1>
                         <div className="page-subtitle">Welcome back, {data.name}</div>
