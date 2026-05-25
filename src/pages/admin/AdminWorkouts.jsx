@@ -107,8 +107,9 @@ export default function AdminWorkouts() {
         return matchesCat && matchesSearch;
     });
 
-    const getImageUrl = (url) => {
-        if (!url) return 'https://via.placeholder.com/400x250?text=Alpha+Fit';
+    const getImageUrl = (url, isModal = false) => {
+        const fallback = isModal ? 'https://via.placeholder.com/800x450?text=Alpha+Fit' : 'https://via.placeholder.com/400x250?text=Alpha+Fit';
+        if (!url) return fallback;
         if (url.startsWith('http') || url.startsWith('data:')) return url;
         
         let normalizedUrl = url.replace(/\\/g, '/'); // Fixes Windows backslashes
@@ -118,12 +119,15 @@ export default function AdminWorkouts() {
             normalizedUrl = normalizedUrl.startsWith('/') ? `/media${normalizedUrl}` : `/media/${normalizedUrl}`;
         }
         
-        // Strictly fetch the exact live backend URL to guarantee Vercel connects perfectly
-        const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+        // Tap directly into the working Axios configuration to guarantee connection!
+        let backendUrl = (api.defaults && api.defaults.baseURL) || import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+        if (backendUrl.endsWith('/')) {
+            backendUrl = backendUrl.slice(0, -1);
+        }
         
-        const baseUrl = backendUrl.replace(/\/api\/?$/, '');
         const cleanUrl = normalizedUrl.startsWith('/') ? normalizedUrl : `/${normalizedUrl}`;
-        return `${baseUrl}${encodeURI(cleanUrl)}`;
+        // Route through the /api tunnel so Vercel proxies the image perfectly
+        return `${backendUrl}${encodeURI(cleanUrl)}`;
     };
 
     const getYouTubeEmbedUrl = (url) => {
