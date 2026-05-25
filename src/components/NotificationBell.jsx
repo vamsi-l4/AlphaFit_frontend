@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../utils/api';
+import { BellRingIcon } from './Icons';
 
 export default function NotificationBell() {
     const [notifications, setNotifications] = useState([]);
@@ -29,13 +30,13 @@ export default function NotificationBell() {
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center', marginRight: '16px' }}>
             <button 
                 className="btn-ghost" 
-                style={{ fontSize: '20px', padding: '6px', position: 'relative', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                style={{ padding: '6px', position: 'relative', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary)' }}
                 onClick={() => setShowNotifs(!showNotifs)}
             >
-                🔔
+                <BellRingIcon width={24} height={24} />
                 {unreadCount > 0 && (
                     <span style={{
-                        position: 'absolute', top: '2px', right: '4px', width: '10px', height: '10px',
+                        position: 'absolute', top: '4px', right: '6px', width: '10px', height: '10px',
                         backgroundColor: 'var(--red)', borderRadius: '50%', border: '2px solid var(--bg-primary)'
                     }} />
                 )}

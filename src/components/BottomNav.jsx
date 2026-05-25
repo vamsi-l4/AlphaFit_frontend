@@ -1,17 +1,18 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { HomeAltIcon, GroupIcon, WalletAltIcon, DumbbellIcon, UserIcon, DashboardIcon } from './Icons';
 
 const adminNavItems = [
-    { path: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
-    { path: '/admin/members', label: 'Members', icon: '👥' },
-    { path: '/admin/payments', label: 'Payments', icon: '💳' },
-    { path: '/admin/workouts', label: 'Workouts', icon: '🏋️' },
+    { path: '/admin/dashboard', label: 'Dashboard', icon: <DashboardIcon width={24} height={24} /> },
+    { path: '/admin/members', label: 'Members', icon: <GroupIcon width={24} height={24} /> },
+    { path: '/admin/payments', label: 'Payments', icon: <WalletAltIcon width={24} height={24} /> },
+    { path: '/admin/workouts', label: 'Workouts', icon: <DumbbellIcon width={24} height={24} /> },
 ];
 
 const memberNavItems = [
-    { path: '/member/dashboard', label: 'Dashboard', icon: '🏠' },
-    { path: '/workouts', label: 'Workouts', icon: '💪' },
-    { path: '/member/profile', label: 'Profile', icon: '👤' },
+    { path: '/member/dashboard', label: 'Dashboard', icon: <HomeAltIcon width={24} height={24} /> },
+    { path: '/workouts', label: 'Workouts', icon: <DumbbellIcon width={24} height={24} /> },
+    { path: '/member/profile', label: 'Profile', icon: <UserIcon width={24} height={24} /> },
 ];
 
 export default function BottomNav() {
@@ -41,7 +42,7 @@ export default function BottomNav() {
                         textDecoration: 'none', color: isActive ? 'var(--accent)' : 'var(--text-muted)', flex: 1
                     })}
                 >
-                    <span className="nav-icon" style={{ fontSize: '20px', marginBottom: '4px' }}>{icon}</span>
+                    <span className="nav-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '4px' }}>{icon}</span>
                     <span className="nav-label" style={{ fontSize: '12px', fontWeight: 500 }}>{label}</span>
                 </NavLink>
             ))}

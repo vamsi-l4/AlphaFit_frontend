@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import AdminLayout from '../../components/AdminLayout';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/api';
+import { BookmarkPlusAltIcon } from '../../components/Icons';
 
 export default function AdminWorkouts() {
     const { user } = useAuth();
@@ -145,7 +146,9 @@ export default function AdminWorkouts() {
                     <div className="page-subtitle">{isManageMode ? 'Alpha Fit Database' : 'Alpha Fit Exclusive Training'}</div>
                 </div>
                 {isManageMode && (
-                    <button className="add-btn" onClick={() => handleOpenModal()}>+ Add Workout</button>
+                    <button className="add-btn" onClick={() => handleOpenModal()} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <BookmarkPlusAltIcon width={20} height={20} /> Add Workout
+                    </button>
                 )}
             </div>
 

@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/api';
 import { formatDate, formatCurrency } from '../../utils/helpers';
 import ExpiryNoticeModal from '../../components/ExpiryNoticeModal';
+import { ArrowOutRightSquareHalfIcon } from '../../components/Icons';
 
 function InfoRow({ label, value, tone }) {
   return (
@@ -18,6 +21,8 @@ export default function MemberProfile() {
   const [profile, setProfile] = useState(null);
   const [expiryNotice, setExpiryNotice] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     api.get('/membership/expiry-check')
@@ -41,6 +46,11 @@ export default function MemberProfile() {
   }
 
   const days = profile ? profile.daysLeft : 0;
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   return (
     <>
@@ -70,7 +80,12 @@ export default function MemberProfile() {
               <div className="member-profile-name">{profile?.name}</div>
               <div className="member-profile-phone">{profile?.phone}</div>
             </div>
-            <span className={`badge badge-${profile?.status?.toLowerCase()}`}>{profile?.status}</span>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+              <span className={`badge badge-${profile?.status?.toLowerCase()}`}>{profile?.status}</span>
+              <button className="btn-danger btn-sm" onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <ArrowOutRightSquareHalfIcon width={16} height={16} /> Logout
+              </button>
+            </div>
           </div>
 
           <InfoRow label="Member Since" value={formatDate(profile?.joinDate)} />
