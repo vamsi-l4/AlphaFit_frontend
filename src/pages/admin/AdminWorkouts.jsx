@@ -32,6 +32,8 @@ export default function AdminWorkouts() {
         videoUrl: '',
         thumbnailUrl: ''
     });
+    const [thumbnailFile, setThumbnailFile] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState(null);
 
     const fetchWorkouts = async () => {
         setLoading(true);
@@ -60,32 +62,37 @@ export default function AdminWorkouts() {
             setEditingWorkout(null);
             setForm({ name: '', category: '', description: '', sets: '', reps: '', restTime: '', difficulty: 'Beginner', videoUrl: '', thumbnailUrl: '' });
         }
+        setThumbnailFile(null);
+        setPreviewUrl(null);
         setShowModal(true);
     };
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            if (file.size > 2500000) { // 2.5MB limit to prevent database overload
-                alert("Image is too large! Please choose an image smaller than 2.5MB to ensure it saves permanently.");
-                e.target.value = "";
-                return;
-            }
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setForm({ ...form, thumbnailUrl: reader.result }); // Converts image to Base64 instantly!
-            };
-            reader.readAsDataURL(file);
+            setThumbnailFile(file);
+            setPreviewUrl(URL.createObjectURL(file)); // Lightweight local preview that doesn't overload the DB!
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            const formData = new FormData();
+            Object.keys(form).forEach(key => {
+                if (form[key] !== null && form[key] !== undefined) {
+                    formData.append(key, form[key]);
+                }
+            });
+
+            if (thumbnailFile) {
+                formData.append('photo', thumbnailFile); // Send as a real file to the backend like before!
+            }
+
             if (editingWorkout) {
-                await api.put(`/workout/v2/${editingWorkout.id}`, form); // Sending purely as JSON so it saves the Base64 image directly to the DB
+                await api.put(`/workout/v2/${editingWorkout.id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
             } else {
-                await api.post('/workout/v2', form);
+                await api.post('/workout/v2', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
             }
             setShowModal(false);
             fetchWorkouts();
@@ -296,7 +303,7 @@ export default function AdminWorkouts() {
                                 <div className="form-group">
                                     <label>Thumbnail Image</label>
                                     <input type="file" className="glass-input" accept="image/*" onChange={handleFileChange} style={{ padding: '9px 16px' }} />
-                                    {form.thumbnailUrl && <img src={getImageUrl(form.thumbnailUrl, true)} alt="Preview" style={{ marginTop: '12px', height: '120px', width: '100%', objectFit: 'cover', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }} />}
+                                    {(previewUrl || form.thumbnailUrl) && <img src={previewUrl || getImageUrl(form.thumbnailUrl, true)} alt="Preview" style={{ marginTop: '12px', height: '120px', width: '100%', objectFit: 'cover', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }} />}
                                 </div>
                             </div>
 
