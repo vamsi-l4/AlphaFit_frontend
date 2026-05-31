@@ -113,8 +113,11 @@ export default function AdminWorkouts() {
 
     const filteredWorkouts = workouts.filter(w => {
         const matchesCat = activeCategory === 'All' || w.category === activeCategory;
-        const matchesSearch = w.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                              (w.description || '').toLowerCase().includes(searchQuery.toLowerCase());
+        const searchStr = (searchQuery || '').toLowerCase().trim();
+        const matchesSearch = !searchStr || 
+                              (w.name || '').toLowerCase().includes(searchStr) || 
+                              (w.description || '').toLowerCase().includes(searchStr) ||
+                              (w.category || '').toLowerCase().includes(searchStr);
         return matchesCat && matchesSearch;
     });
 
