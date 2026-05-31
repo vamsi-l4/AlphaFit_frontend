@@ -47,11 +47,11 @@ export default function Intro() {
     // Unlock audio instantly when the user touches or clicks ANYWHERE on the screen
     useEffect(() => {
         const unlockAudio = () => {
-            // If the video actually got blocked, tapping the screen will rescue it
-            if (videoRef.current && videoRef.current.paused) {
+            // If the video actually got blocked (and hasn't already finished), tapping the screen will rescue it
+            if (videoRef.current && videoRef.current.paused && !videoRef.current.ended) {
                 videoRef.current.play().catch(() => setShowButton(true));
             }
-            if (audioRef.current && audioRef.current.paused) {
+            if (audioRef.current && audioRef.current.paused && (!videoRef.current || !videoRef.current.ended)) {
                 // Sync the audio to exactly where the video is right now!
                 if (videoRef.current) {
                     audioRef.current.currentTime = videoRef.current.currentTime;
@@ -145,16 +145,9 @@ export default function Intro() {
                     left: 0;
                     width: 100%;
                     height: 100%;
-                    object-fit: cover;
+                    object-fit: contain;
                     object-position: center center;
                     background-color: #000;
-                }
-
-                @media (min-width: 768px) {
-                    .intro-video {
-                        object-fit: contain;
-                        background-color: #000;
-                    }
                 }
 
                 .overlay-wrapper {
